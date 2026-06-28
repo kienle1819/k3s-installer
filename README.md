@@ -47,6 +47,14 @@ To join an additional Master or a Worker Node to the cluster, you need the **Nod
 sudo cat /var/lib/rancher/k3s/server/node-token
 ```
 
+### 🤖 Ansible Automation (Homelab 5-Node Cluster)
+
+If you are deploying a full High Availability cluster in a homelab (3 Masters, 2 Workers), you can automate the entire process using the provided Ansible playbook.
+
+1. Review the [Ansible Quickstart Guide](specs/001-ansible-homelab/quickstart.md).
+2. Copy the example inventory: `cp ansible/inventory.example.yml inventory.yml` and add your IPs.
+3. Run: `ansible-playbook -i inventory.yml ansible/deploy-k3s.yml`
+
 If you want to inspect the script first, download it locally and run it manually:
 
 ```bash

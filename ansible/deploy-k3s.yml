@@ -1,0 +1,37 @@
+---
+- name: Play 1 - Initialize First Master Node
+  hosts: k3s_first_master
+  become: yes
+  tasks:
+    - name: Run K3s Installer to initialize the cluster
+      script: ../installer.sh --ha-first
+
+    - name: Wait for node-token to be generated
+      wait_for:
+        path: /var/lib/rancher/k3s/server/node-token
+        state: present
+        timeout: 120
+
+    - name: Slurp node-token from first master
+      slurp:
+        src: /var/lib/rancher/k3s/server/node-token
+      register: slurp_token
+
+    - name: Set node-token as host fact
+      set_fact:
+        k3s_token: "{{ slurp_token['content'] | b64decode | trim }}"
+
+- name: Play 2 - Join Additional Master Nodes
+  hosts: k3s_join_masters
+  become: yes
+  serial: 1
+  tasks:
+    - name: Run K3s Installer to join as a master
+      script: "../installer.sh --ha-join -m {{ k3s_master_ip }} -t {{ hostvars[groups['k3s_first_master'][0]]['k3s_token'] }}"
+
+- name: Play 3 - Join Worker Nodes
+  hosts: k3s_workers
+  become: yes
+  tasks:
+    - name: Run K3s Installer to join as a worker
+      script: "../installer.sh --worker -m {{ k3s_master_ip }} -t {{ hostvars[groups['k3s_first_master'][0]]['k3s_token'] }}"
