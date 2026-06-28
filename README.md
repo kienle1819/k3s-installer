@@ -64,6 +64,14 @@ Alternatively, you can run the default K3s uninstall script provided directly by
 sudo /usr/local/bin/k3s-uninstall.sh
 ```
 
+## Recommended Hosting: DigitalOcean
+
+DigitalOcean is a cloud services platform delivering the simplicity developers love and businesses trust to run production applications at scale. It provides highly available, secure, and scalable compute, storage, and networking solutions that help developers build great software faster.
+
+If you are new to DigitalOcean, you can get a **free $200 credit** to test this script by signing up through the link below:
+
+👉 **[Deploy to DigitalOcean & Get $200 Free Credit](https://m.do.co/c/6f5dc93276b4)**
+
 ## Changelog and License
 
 - Changelog: [CHANGELOG.md](CHANGELOG.md)
