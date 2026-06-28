@@ -110,6 +110,10 @@ If you are new to DigitalOcean, you can get a **[free $200 credit](https://m.do.
 
 <a href="https://www.digitalocean.com/?refcode=6f5dc93276b4&utm_campaign=Referral_Invite&utm_medium=Referral_Program&utm_source=badge"><img src="https://web-platforms.sfo2.cdn.digitaloceanspaces.com/WWW/Badge%201.svg" alt="DigitalOcean Referral Badge" /></a>
 
+## 🤝 Contributing
+
+We welcome contributions! Please see our [contributing guidelines](./CONTRIBUTING.md) for details on how to get involved.
+
 ## 📝 Changelog and License
 
 - Changelog: [CHANGELOG.md](CHANGELOG.md)
