@@ -75,9 +75,9 @@ sudo /usr/local/bin/k3s-uninstall.sh
 
 DigitalOcean is a cloud services platform delivering the simplicity developers love and businesses trust to run production applications at scale. It provides highly available, secure, and scalable compute, storage, and networking solutions that help developers build great software faster.
 
-If you are new to DigitalOcean, you can get a **free $200 credit** to test this script by signing up through the link below:
+If you are new to DigitalOcean, you can get a **[free $200 credit](https://m.do.co/c/6f5dc93276b4)** to test this script.
 
-👉 **[Deploy to DigitalOcean & Get $200 Free Credit](https://m.do.co/c/6f5dc93276b4)**
+<a href="https://www.digitalocean.com/?refcode=6f5dc93276b4&utm_campaign=Referral_Invite&utm_medium=Referral_Program&utm_source=badge"><img src="https://web-platforms.sfo2.cdn.digitaloceanspaces.com/WWW/Badge%201.svg" alt="DigitalOcean Referral Badge" /></a>
 
 ## 📝 Changelog and License
 
