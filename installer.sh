@@ -9,7 +9,7 @@ CALICO_VERSION="v3.28.5"
 K3S_VERSION="v1.32.6+k3s1"
 KUBECONFIG_PATH="/etc/rancher/k3s/k3s.yaml"
 LOG_FILE="/tmp/k3s-setup-$(date +%Y%m%d-%H%M%S).log"
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" && pwd)" 2>/dev/null || SCRIPT_DIR="/tmp"
 
 # Colors for output
 RED='\033[0;31m'
