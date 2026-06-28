@@ -1,6 +1,4 @@
 #!/bin/bash
-# Install from GitHub with:
-# curl -fsSL https://raw.githubusercontent.com/kienle1819/k3s-installer/main/installer.sh | bash
 
 set -euo pipefail
 
@@ -9,7 +7,7 @@ CALICO_VERSION="v3.28.5"
 K3S_VERSION="v1.32.6+k3s1"
 KUBECONFIG_PATH="/etc/rancher/k3s/k3s.yaml"
 LOG_FILE="/tmp/k3s-setup-$(date +%Y%m%d-%H%M%S).log"
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" && pwd)" 2>/dev/null || SCRIPT_DIR="/tmp"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # Colors for output
 RED='\033[0;31m'
@@ -180,8 +178,6 @@ install_packages() {
             log "ERROR" "Failed to install packages"
             return 1
         }
-    else
-        log "INFO" "All required packages are already installed"
     fi
 }
 
@@ -666,12 +662,5 @@ main_menu() {
 log "INFO" "Starting K3s + Calico setup script (No IPVS)"
 log "INFO" "Log file: $LOG_FILE"
 
-# Run main menu (auto-install if piped, otherwise show menu)
-if [[ -t 0 ]]; then
-    # Running in terminal - show interactive menu
-    main_menu
-else
-    # Running via pipe (curl | bash) - auto-install
-    log "INFO" "Running in non-interactive mode. Starting K3s installation..."
-    install_k3s
-fi
+# Run main menu
+main_menu
