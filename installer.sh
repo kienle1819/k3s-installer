@@ -182,8 +182,6 @@ install_packages() {
         }
     else
         log "INFO" "All required packages are already installed"
-        log "INFO" "Installation check completed. Exiting."
-        exit 0
     fi
 }
 
