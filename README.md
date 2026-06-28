@@ -26,9 +26,25 @@ curl -fsSL https://raw.githubusercontent.com/kienle1819/k3s-installer/v1.0.3/ins
 curl -fsSL https://raw.githubusercontent.com/kienle1819/k3s-installer/main/installer.sh | bash
 ```
 
+**Install First Master Node (HA Support):**
+```bash
+curl -fsSL https://raw.githubusercontent.com/kienle1819/k3s-installer/main/installer.sh | bash -s -- --ha-first
+```
+
+**Install Additional Master Node (HA Join):**
+```bash
+curl -fsSL https://raw.githubusercontent.com/kienle1819/k3s-installer/main/installer.sh | bash -s -- --ha-join --master-ip "10.0.0.1" --token "K10...::server:..."
+```
+
 **Install as a Worker Node (non-interactive):**
 ```bash
-curl -fsSL https://raw.githubusercontent.com/kienle1819/k3s-installer/main/installer.sh | bash -s -- --worker --master-ip "10.0.0.1" --token "K10...::node:..."
+curl -fsSL https://raw.githubusercontent.com/kienle1819/k3s-installer/main/installer.sh | bash -s -- --worker --master-ip "10.0.0.1" --token "K10...::server:..."
+```
+
+### 🔑 How to get the Node Token
+To join an additional Master or a Worker Node to the cluster, you need the **Node Token** from the first Master Node. Run this command on your first Master Node to retrieve it:
+```bash
+sudo cat /var/lib/rancher/k3s/server/node-token
 ```
 
 If you want to inspect the script first, download it locally and run it manually:
@@ -63,9 +79,11 @@ bash installer.sh --help
 - `-h`, `--help`: Show help message
 - `-v`, `--version`: Show script version
 - `-l`, `--log`: Specify log file location
+- `--ha-first`: Install as the FIRST Master Node (initializes embedded etcd)
+- `--ha-join`: Install as an ADDITIONAL Master Node
 - `-w`, `--worker`: Install as a K3s worker node instead of master
-- `-m`, `--master-ip IP`: Master node IP address (required for worker)
-- `-t`, `--token TOKEN`: K3s node token (required for worker)
+- `-m`, `--master-ip IP`: First Master node IP address (required for worker and ha-join)
+- `-t`, `--token TOKEN`: K3s node token (required for worker and ha-join)
 
 If no arguments are provided, the script starts an interactive menu allowing you to choose between Master/Worker installation, uninstallation, checking logs, and more.
 

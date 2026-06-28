@@ -2,7 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
-## [v1.1.0-beta.1] - 2026-06-28
+## [v1.1.0] - 2026-06-28
+
+### Added
+- Multi-node Master (High Availability) support.
+- `--ha-first` and `--ha-join` flags for clustered masters setup.
+- Documentation for retrieving node token (`/var/lib/rancher/k3s/server/node-token`).
 
 ### Added
 - Added support for installing K3s Worker Nodes.

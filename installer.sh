@@ -493,6 +493,20 @@ install_k3s() {
     
     log "INFO" "Using server IP: $server_ip"
     
+    local extra_args=""
+    if [[ "$INSTALL_MODE" == "master-first" ]]; then
+        extra_args="--cluster-init"
+        log "INFO" "HA Mode: Initializing cluster with embedded etcd"
+    elif [[ "$INSTALL_MODE" == "master-join" ]]; then
+        if [[ -z "$MASTER_IP" ]] || [[ -z "$NODE_TOKEN" ]]; then
+            log "ERROR" "Master IP and Node Token are required to join as additional master."
+            exit 1
+        fi
+        extra_args="--server https://${MASTER_IP}:6443"
+        export K3S_TOKEN="$NODE_TOKEN"
+        log "INFO" "HA Mode: Joining cluster at https://${MASTER_IP}:6443 as additional master"
+    fi
+
     # Install K3s (without IPVS configuration)
     log "INFO" "Installing K3s version $K3S_VERSION..."
     curl -sfL https://get.k3s.io | \
@@ -504,7 +518,8 @@ install_k3s() {
         --disable-network-policy \
         --tls-san $server_ip \
         --kubelet-arg cloud-provider=external \
-        --service-cidr=10.55.55.0/24" \
+        --service-cidr=10.55.55.0/24 \
+        $extra_args" \
         K3S_KUBECONFIG_MODE="644" \
         sh - || {
         log "ERROR" "K3s installation failed"
@@ -532,10 +547,14 @@ install_k3s() {
     }
     
     # Install Calico
-    install_calico || {
-        log "ERROR" "Calico installation failed"
-        exit 1
-    }
+    if [[ "$INSTALL_MODE" == "master-join" ]]; then
+        log "INFO" "Skipping Calico installation on additional master node (already managed by cluster)"
+    else
+        install_calico || {
+            log "ERROR" "Calico installation failed"
+            exit 1
+        }
+    fi
     
     # Install Helm if not present
     if ! command -v helm >/dev/null 2>&1; then
@@ -682,9 +701,11 @@ Options:
     -h, --help               Show this help message
     -v, --version            Show script version
     -l, --log                Specify log file location
+    --ha-first               Install as the FIRST Master Node (cluster-init)
+    --ha-join                Install as an ADDITIONAL Master Node (requires -m and -t)
     -w, --worker             Install as a K3s worker node instead of master
-    -m, --master-ip IP       Master node IP address (required for worker)
-    -t, --token TOKEN        K3s node token (required for worker)
+    -m, --master-ip IP       First Master node IP address (required for worker and ha-join)
+    -t, --token TOKEN        K3s node token (required for worker and ha-join)
     
 Interactive mode will be started if no options are provided.
 EOF
@@ -713,6 +734,14 @@ while [[ $# -gt 0 ]]; do
             LOG_FILE="$2"
             shift 2
             ;;
+        --ha-first)
+            INSTALL_MODE="master-first"
+            shift 1
+            ;;
+        --ha-join)
+            INSTALL_MODE="master-join"
+            shift 1
+            ;;
         -w|--worker)
             INSTALL_MODE="worker"
             shift 1
@@ -738,26 +767,34 @@ main_menu() {
     echo -e "${BLUE}==============================${NC}"
     echo -e "${BLUE}  K3s + Calico Setup (No IPVS)${NC}"
     echo -e "${BLUE}==============================${NC}"
-    echo "1) Install K3s + Calico (Master Node)"
-    echo "2) Install K3s Worker Node"
-    echo "3) Uninstall K3s"
-    echo "4) Show cluster status"
-    echo "5) Show logs"
-    echo "6) Exit"
+    echo "1) Install First Master Node (HA Support)"
+    echo "2) Install Additional Master Node"
+    echo "3) Install K3s Worker Node"
+    echo "4) Uninstall K3s"
+    echo "5) Show cluster status"
+    echo "6) Show logs"
+    echo "7) Exit"
     echo -e "${BLUE}------------------------------${NC}"
-    read -p "Choose an option (1-6): " action < /dev/tty
+    read -p "Choose an option (1-7): " action < /dev/tty
     
     case "$action" in
         1)
+            INSTALL_MODE="master-first"
             install_k3s
             ;;
         2)
-            install_k3s_worker
+            INSTALL_MODE="master-join"
+            read -p "👉 Enter the First Master Node IP: " MASTER_IP < /dev/tty
+            read -p "👉 Enter the Node Token (from /var/lib/rancher/k3s/server/node-token on Master): " NODE_TOKEN < /dev/tty
+            install_k3s
             ;;
         3)
-            uninstall_k3s
+            install_k3s_worker
             ;;
         4)
+            uninstall_k3s
+            ;;
+        5)
             if [[ -f "$KUBECONFIG_PATH" ]]; then
                 export KUBECONFIG="$KUBECONFIG_PATH"
                 echo -e "\n${GREEN}=== Cluster Info ===${NC}"
@@ -770,14 +807,14 @@ main_menu() {
                 log "ERROR" "Kubeconfig not found. Is K3s installed?"
             fi
             ;;
-        5)
+        6)
             if [[ -f "$LOG_FILE" ]]; then
                 tail -20 "$LOG_FILE"
             else
                 log "ERROR" "Log file not found: $LOG_FILE"
             fi
             ;;
-        6)
+        7)
             log "INFO" "Exiting..."
             exit 0
             ;;
@@ -801,8 +838,11 @@ else
     if [[ "$INSTALL_MODE" == "worker" ]]; then
         log "INFO" "Running in non-interactive mode. Starting K3s Worker installation..."
         install_k3s_worker
+    elif [[ "$INSTALL_MODE" == "master-first" ]] || [[ "$INSTALL_MODE" == "master-join" ]]; then
+        log "INFO" "Running in non-interactive mode. Starting K3s Master ($INSTALL_MODE) installation..."
+        install_k3s
     else
-        log "INFO" "Running in non-interactive mode. Starting K3s Master installation..."
+        log "INFO" "Running in non-interactive mode. Starting K3s Master (standalone) installation..."
         install_k3s
     fi
 fi
