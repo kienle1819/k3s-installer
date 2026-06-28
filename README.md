@@ -49,6 +49,21 @@ bash installer.sh --version
 
 If no arguments are provided, the script starts an interactive menu.
 
+## Uninstallation
+
+If you no longer need K3s and want to remove it completely from your system, you can use the built-in interactive menu to uninstall:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/kienle1819/k3s-installer/main/installer.sh -o /tmp/installer.sh
+bash /tmp/installer.sh
+```
+When the menu appears, select option **2) Uninstall K3s**.
+
+Alternatively, you can run the default K3s uninstall script provided directly by Rancher:
+```bash
+sudo /usr/local/bin/k3s-uninstall.sh
+```
+
 ## Changelog and License
 
 - Changelog: [CHANGELOG.md](CHANGELOG.md)
