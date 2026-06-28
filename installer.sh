@@ -62,8 +62,25 @@ check_requirements() {
     fi
     
     source /etc/os-release
-    if [[ "$ID" != "ubuntu" ]] && [[ "$ID" != "debian" ]]; then
-        log "WARN" "This script is designed for Ubuntu/Debian. Proceeding anyway..."
+    
+    local is_supported=false
+    
+    if [[ "$ID" == "ubuntu" ]]; then
+        if [[ "$VERSION_ID" == "22.04" ]] || [[ "$VERSION_ID" == "24.04" ]] || [[ "$VERSION_ID" == "26.04" ]]; then
+            is_supported=true
+        fi
+    elif [[ "$ID" == "debian" ]]; then
+        if [[ "$VERSION_ID" == "12" ]] || [[ "$VERSION_ID" == "13" ]]; then
+            is_supported=true
+        fi
+    fi
+    
+    if [[ "$is_supported" == false ]]; then
+        log "WARN" "This script is optimized for Ubuntu (22.04, 24.04, 26.04) and Debian (12, 13)."
+        log "WARN" "Current OS: $ID $VERSION_ID. Proceeding anyway, but you may encounter issues..."
+        sleep 2
+    else
+        log "INFO" "OS $ID $VERSION_ID is fully supported."
     fi
     
     # Check architecture
