@@ -10,6 +10,9 @@ K3S_VERSION="v1.36.2+k3s1"
 KUBECONFIG_PATH="/etc/rancher/k3s/k3s.yaml"
 LOG_FILE="/tmp/k3s-setup-$(date +%Y%m%d-%H%M%S).log"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" && pwd)" 2>/dev/null || SCRIPT_DIR="/tmp"
+INSTALL_MODE="master"
+MASTER_IP=""
+NODE_TOKEN=""
 
 # Colors for output
 RED='\033[0;31m'
@@ -608,8 +611,11 @@ uninstall_k3s() {
     
     # Uninstall K3s
     if [[ -f /usr/local/bin/k3s-uninstall.sh ]]; then
-        log "INFO" "Running K3s uninstaller..."
+        log "INFO" "Running K3s master uninstaller..."
         sudo /usr/local/bin/k3s-uninstall.sh || log "WARN" "K3s uninstaller reported errors"
+    elif [[ -f /usr/local/bin/k3s-agent-uninstall.sh ]]; then
+        log "INFO" "Running K3s agent uninstaller..."
+        sudo /usr/local/bin/k3s-agent-uninstall.sh || log "WARN" "K3s agent uninstaller reported errors"
     else
         log "WARN" "K3s uninstaller not found - K3s may not be installed"
     fi
@@ -630,15 +636,55 @@ uninstall_k3s() {
     log "INFO" "✅ K3s has been uninstalled successfully!"
 }
 
+# Install K3s Worker
+install_k3s_worker() {
+    log "INFO" "Starting K3s Worker Node installation..."
+    
+    # Run pre-flight checks and package installation
+    check_root
+    check_requirements
+    install_packages
+    
+    # Prompt for Master IP if not provided
+    if [[ -z "$MASTER_IP" ]]; then
+        read -p "👉 Enter the Master Node IP: " MASTER_IP < /dev/tty
+    fi
+    
+    # Prompt for Node Token if not provided
+    if [[ -z "$NODE_TOKEN" ]]; then
+        read -p "👉 Enter the Node Token (from /var/lib/rancher/k3s/server/node-token on Master): " NODE_TOKEN < /dev/tty
+    fi
+    
+    if [[ -z "$MASTER_IP" ]] || [[ -z "$NODE_TOKEN" ]]; then
+        log "ERROR" "Master IP and Node Token are required to join the cluster."
+        exit 1
+    fi
+    
+    log "INFO" "Installing K3s Agent (Worker) and joining $MASTER_IP..."
+    curl -sfL https://get.k3s.io | K3S_URL="https://${MASTER_IP}:6443" K3S_TOKEN="${NODE_TOKEN}" INSTALL_K3S_VERSION="$K3S_VERSION" sh - || {
+        log "ERROR" "K3s worker installation failed"
+        exit 1
+    }
+    
+    log "INFO" "Checking K3s agent service status..."
+    systemctl status k3s-agent --no-pager || log "WARN" "k3s-agent service might not be running properly"
+    
+    log "INFO" "✅ K3s Worker Node installed and joined to $MASTER_IP successfully!"
+    log "INFO" "Log file: $LOG_FILE"
+}
+
 # Show usage
 show_usage() {
     cat << EOF
 Usage: $0 [OPTIONS]
 
 Options:
-    -h, --help      Show this help message
-    -v, --version   Show script version
-    -l, --log       Specify log file location
+    -h, --help               Show this help message
+    -v, --version            Show script version
+    -l, --log                Specify log file location
+    -w, --worker             Install as a K3s worker node instead of master
+    -m, --master-ip IP       Master node IP address (required for worker)
+    -t, --token TOKEN        K3s node token (required for worker)
     
 Interactive mode will be started if no options are provided.
 EOF
@@ -667,6 +713,18 @@ while [[ $# -gt 0 ]]; do
             LOG_FILE="$2"
             shift 2
             ;;
+        -w|--worker)
+            INSTALL_MODE="worker"
+            shift 1
+            ;;
+        -m|--master-ip)
+            MASTER_IP="$2"
+            shift 2
+            ;;
+        -t|--token)
+            NODE_TOKEN="$2"
+            shift 2
+            ;;
         *)
             log "ERROR" "Unknown option: $1"
             show_usage
@@ -680,22 +738,26 @@ main_menu() {
     echo -e "${BLUE}==============================${NC}"
     echo -e "${BLUE}  K3s + Calico Setup (No IPVS)${NC}"
     echo -e "${BLUE}==============================${NC}"
-    echo "1) Install K3s + Calico"
-    echo "2) Uninstall K3s"
-    echo "3) Show cluster status"
-    echo "4) Show logs"
-    echo "5) Exit"
+    echo "1) Install K3s + Calico (Master Node)"
+    echo "2) Install K3s Worker Node"
+    echo "3) Uninstall K3s"
+    echo "4) Show cluster status"
+    echo "5) Show logs"
+    echo "6) Exit"
     echo -e "${BLUE}------------------------------${NC}"
-    read -p "Choose an option (1-5): " action < /dev/tty
+    read -p "Choose an option (1-6): " action < /dev/tty
     
     case "$action" in
         1)
             install_k3s
             ;;
         2)
-            uninstall_k3s
+            install_k3s_worker
             ;;
         3)
+            uninstall_k3s
+            ;;
+        4)
             if [[ -f "$KUBECONFIG_PATH" ]]; then
                 export KUBECONFIG="$KUBECONFIG_PATH"
                 echo -e "\n${GREEN}=== Cluster Info ===${NC}"
@@ -708,14 +770,14 @@ main_menu() {
                 log "ERROR" "Kubeconfig not found. Is K3s installed?"
             fi
             ;;
-        4)
+        5)
             if [[ -f "$LOG_FILE" ]]; then
                 tail -20 "$LOG_FILE"
             else
                 log "ERROR" "Log file not found: $LOG_FILE"
             fi
             ;;
-        5)
+        6)
             log "INFO" "Exiting..."
             exit 0
             ;;
@@ -736,6 +798,11 @@ if [[ -t 0 ]]; then
     main_menu
 else
     # Running via pipe (curl | bash) - auto-install
-    log "INFO" "Running in non-interactive mode. Starting K3s installation..."
-    install_k3s
+    if [[ "$INSTALL_MODE" == "worker" ]]; then
+        log "INFO" "Running in non-interactive mode. Starting K3s Worker installation..."
+        install_k3s_worker
+    else
+        log "INFO" "Running in non-interactive mode. Starting K3s Master installation..."
+        install_k3s
+    fi
 fi

@@ -26,6 +26,11 @@ curl -fsSL https://raw.githubusercontent.com/kienle1819/k3s-installer/v1.0.3/ins
 curl -fsSL https://raw.githubusercontent.com/kienle1819/k3s-installer/main/installer.sh | bash
 ```
 
+**Install as a Worker Node (non-interactive):**
+```bash
+curl -fsSL https://raw.githubusercontent.com/kienle1819/k3s-installer/main/installer.sh | bash -s -- --worker --master-ip "10.0.0.1" --token "K10...::node:..."
+```
+
 If you want to inspect the script first, download it locally and run it manually:
 
 ```bash
@@ -51,10 +56,18 @@ bash /tmp/installer.sh
 
 ```bash
 bash installer.sh --help
-bash installer.sh --version
 ```
 
-If no arguments are provided, the script starts an interactive menu.
+### Command Line Options
+
+- `-h`, `--help`: Show help message
+- `-v`, `--version`: Show script version
+- `-l`, `--log`: Specify log file location
+- `-w`, `--worker`: Install as a K3s worker node instead of master
+- `-m`, `--master-ip IP`: Master node IP address (required for worker)
+- `-t`, `--token TOKEN`: K3s node token (required for worker)
+
+If no arguments are provided, the script starts an interactive menu allowing you to choose between Master/Worker installation, uninstallation, checking logs, and more.
 
 ## 🗑️ Uninstallation
 

@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [Unreleased]
+
+### Added
+- Added support for installing K3s Worker Nodes.
+- Added `--worker`, `--master-ip`, and `--token` command-line flags.
+- Updated interactive menu to include Worker Node installation.
+- Updated uninstall script to handle `k3s-agent-uninstall.sh` for worker nodes.
+
 ## [1.0.3] - 2026-06-28
 
 ### Changed
