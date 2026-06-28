@@ -664,5 +664,12 @@ main_menu() {
 log "INFO" "Starting K3s + Calico setup script (No IPVS)"
 log "INFO" "Log file: $LOG_FILE"
 
-# Run main menu
-main_menu
+# Run main menu (auto-install if piped, otherwise show menu)
+if [[ -t 0 ]]; then
+    # Running in terminal - show interactive menu
+    main_menu
+else
+    # Running via pipe (curl | bash) - auto-install
+    log "INFO" "Running in non-interactive mode. Starting K3s installation..."
+    install_k3s
+fi
