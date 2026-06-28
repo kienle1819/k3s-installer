@@ -5,8 +5,8 @@
 set -euo pipefail
 
 # Configuration
-CALICO_VERSION="v3.28.5"
-K3S_VERSION="v1.32.6+k3s1"
+CALICO_VERSION="v3.32.1"
+K3S_VERSION="v1.36.2+k3s1"
 KUBECONFIG_PATH="/etc/rancher/k3s/k3s.yaml"
 LOG_FILE="/tmp/k3s-setup-$(date +%Y%m%d-%H%M%S).log"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" && pwd)" 2>/dev/null || SCRIPT_DIR="/tmp"
