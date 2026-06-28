@@ -24,3 +24,7 @@ Thumbs.db
 .gemini/
 .specify/
 GEMINI.md
+
+# Ansible
+inventory.yml
+*.retry
