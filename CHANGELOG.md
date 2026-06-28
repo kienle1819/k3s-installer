@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## [Unreleased]
+## [v1.1.0-beta.1] - 2026-06-28
 
 ### Added
 - Added support for installing K3s Worker Nodes.
