@@ -87,7 +87,7 @@ check_requirements() {
     # Check if K3s is already installed
     if command -v k3s >/dev/null 2>&1; then
         log "WARN" "K3s appears to be already installed"
-        read -p "Continue anyway? (y/N): " -n 1 -r
+        read -p "Continue anyway? (y/N): " -n 1 -r < /dev/tty
         echo
         if [[ ! $REPLY =~ ^[Yy]$ ]]; then
             exit 1
@@ -419,7 +419,7 @@ install_k3s() {
     }
     
     local server_ip
-    read -p "👉 Detected server IP is '$detected_ip'. Press Enter to accept or input a different IP: " server_ip
+    read -p "👉 Detected server IP is '$detected_ip'. Press Enter to accept or input a different IP: " server_ip < /dev/tty
     server_ip=${server_ip:-$detected_ip}
     
     if ! validate_ip "$server_ip"; then
@@ -535,7 +535,7 @@ uninstall_k3s() {
         log "INFO" "Current nodes in cluster:"
         kubectl get nodes 2>/dev/null || log "WARN" "Could not fetch nodes"
         
-        read -p "👉 Enter the node name to delete from cluster (or press Enter to skip): " node_name
+        read -p "👉 Enter the node name to delete from cluster (or press Enter to skip): " node_name < /dev/tty
         if [[ -n "$node_name" ]]; then
             log "INFO" "Deleting node $node_name from cluster..."
             kubectl delete node "$node_name" 2>/dev/null || log "WARN" "Failed to delete node or node not found"
@@ -622,7 +622,7 @@ main_menu() {
     echo "4) Show logs"
     echo "5) Exit"
     echo -e "${BLUE}------------------------------${NC}"
-    read -p "Choose an option (1-5): " action
+    read -p "Choose an option (1-5): " action < /dev/tty
     
     case "$action" in
         1)
