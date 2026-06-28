@@ -7,8 +7,14 @@ A simple installer for K3s + Calico on Ubuntu/Debian systems.
 
 ## Quick install from GitHub
 
-Run this as a regular user with sudo access:
+Run this as a regular user with sudo access.
 
+**Install a specific stable release (Recommended):**
+```bash
+curl -fsSL https://raw.githubusercontent.com/kienle1819/k3s-installer/v1.0.1/installer.sh | bash
+```
+
+**Install latest development version (from main branch):**
 ```bash
 curl -fsSL https://raw.githubusercontent.com/kienle1819/k3s-installer/main/installer.sh | bash
 ```
