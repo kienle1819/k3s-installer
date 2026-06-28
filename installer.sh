@@ -275,6 +275,50 @@ wait_for_pods() {
     log "INFO" "All pods with selector $label_selector are ready"
 }
 
+# Wait for entire cluster (nodes and system pods) to be ready
+wait_for_cluster_ready() {
+    log "INFO" "Waiting for the cluster to become fully ready (this may take a few minutes)..."
+    
+    # 1. Wait for node to be ready
+    wait_for_node || log "WARN" "Nodes are taking longer than expected to become ready"
+    
+    # 2. Wait for system pods
+    local namespaces=("kube-system" "calico-system" "tigera-operator")
+    local max_attempts=30
+    local attempt=1
+    local sleep_interval=10
+    
+    while [[ $attempt -le $max_attempts ]]; do
+        local not_ready_count=0
+        
+        for ns in "${namespaces[@]}"; do
+            # Find pods that are NOT Running and NOT Completed
+            local pending_pods
+            pending_pods=$(kubectl get pods -n "$ns" --no-headers 2>/dev/null | awk '{print $3}' | grep -Ev 'Running|Completed' || true)
+            
+            if [[ -n "$pending_pods" ]]; then
+                local count
+                count=$(echo "$pending_pods" | wc -w)
+                not_ready_count=$((not_ready_count + count))
+            fi
+        done
+        
+        if [[ $not_ready_count -eq 0 ]]; then
+            log "INFO" "All system pods are ready!"
+            return 0
+        fi
+        
+        log "INFO" "Waiting for $not_ready_count system pod(s) to become ready... (attempt $attempt/$max_attempts)"
+        sleep $sleep_interval
+        ((attempt++))
+    done
+    
+    log "WARN" "Some system pods did not become ready within the timeout period."
+    log "DEBUG" "Current pod status:"
+    kubectl get pods -A 2>/dev/null || true
+    return 0
+}
+
 # Install Calico with proper CRD waiting
 install_calico() {
     log "INFO" "Installing Calico $CALICO_VERSION..."
@@ -510,6 +554,9 @@ install_k3s() {
         log "WARN" "Failed to add cron job"
     }
 
+    # Wait for all components to be fully ready
+    wait_for_cluster_ready
+    
     log "INFO" "✅ K3s $K3S_VERSION with Calico has been installed successfully!"
     log "INFO" "📝 Note: IPVS support has been skipped - using default iptables proxy mode"
     log "INFO" "Log file: $LOG_FILE"

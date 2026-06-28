@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.2] - 2026-06-28
+
+### Added
+- Added a cluster health check (`wait_for_cluster_ready`) at the end of the installation to ensure all nodes are `Ready` and system pods are fully `Running` or `Completed` before declaring success.
+
+
 ## [1.0.1] - 2026-06-28
 
 ### Fixed
