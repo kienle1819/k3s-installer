@@ -71,27 +71,13 @@ Alternatively, you can run the default K3s uninstall script provided directly by
 sudo /usr/local/bin/k3s-uninstall.sh
 ```
 
-## 💙 Recommended Hosting: DigitalOcean
+## 💙 Recommended VPS Provider: DigitalOcean
 
 DigitalOcean is a cloud services platform delivering the simplicity developers love and businesses trust to run production applications at scale. It provides highly available, secure, and scalable compute, storage, and networking solutions that help developers build great software faster.
 
 If you are new to DigitalOcean, you can get a **free $200 credit** to test this script by signing up through the link below:
 
 👉 **[Deploy to DigitalOcean & Get $200 Free Credit](https://m.do.co/c/6f5dc93276b4)**
-
-## 📖 Introduction to Bash Scripting
-
-This project is heavily driven by Bash scripting to automate the Kubernetes setup process. If you want to learn the basics of Bash scripting and start writing awesome scripts to automate your daily tasks, we highly recommend this open-source guide:
-
-- **[Introduction to Bash Scripting Guide/eBook](https://github.com/bobbyiliev/introduction-to-bash-scripting)** by Bobby Iliev
-
-You can read it directly on GitHub or download it for free in various formats:
-- [📥 Download Dark Mode PDF](https://github.com/bobbyiliev/introduction-to-bash-scripting/raw/main/ebook/en/export/introduction-to-bash-scripting-dark.pdf)
-- [📥 Download Light Mode PDF](https://github.com/bobbyiliev/introduction-to-bash-scripting/raw/main/ebook/en/export/introduction-to-bash-scripting-light.pdf)
-- [📥 Download ePub](https://github.com/bobbyiliev/introduction-to-bash-scripting/raw/main/ebook/en/export/introduction-to-bash-scripting.epub)
-
-Other useful resources:
-- [Shellcheck](https://www.shellcheck.net/) - An essential linting tool that we use to ensure the script is free of bugs.
 
 ## 📝 Changelog and License
 
