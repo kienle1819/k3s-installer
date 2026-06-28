@@ -2,12 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
-## [1.0.3-beta.1] - 2026-06-28
+## [1.0.3] - 2026-06-28
 
 ### Changed
 - Upgraded default K3s version to `v1.36.2+k3s1`
 - Upgraded default Calico version to `v3.32.1`
-- Released as a beta tag for testing and validation.
 
 
 ## [1.0.2] - 2026-06-28

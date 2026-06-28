@@ -11,7 +11,7 @@ Run this as a regular user with sudo access.
 
 **Install a specific stable release (Recommended):**
 ```bash
-curl -fsSL https://raw.githubusercontent.com/kienle1819/k3s-installer/v1.0.2/installer.sh | bash
+curl -fsSL https://raw.githubusercontent.com/kienle1819/k3s-installer/v1.0.3/installer.sh | bash
 ```
 
 **Install latest development version (from main branch):**
